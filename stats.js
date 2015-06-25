@@ -79,6 +79,7 @@ function Monitor(container_id, container_info) {
     var self = this;
     self._active = false;
     self._container = docker.getContainer(container_id);
+    self._id = container_id;
 
     // datapoint name for the container
     self._name = (container_info.Labels || {})[CONTAINER_NAME_LABEL];
@@ -148,6 +149,8 @@ Monitor.prototype._collect = function(stat) {
 
     stats.collect(SERIES_NAME, {
         name: self._name,
+        id: self._id,
+
         // network
         'network.rx_bytes': network.rx_bytes,
         'network.rx_packets': network.rx_packets,
