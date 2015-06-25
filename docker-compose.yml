@@ -1,0 +1,24 @@
+stats:
+    build: .
+    links:
+        - influx
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+        INFLUXDB_URL: http://root:root@influx:8086/test
+        DEBUG: docker-stats
+
+influx:
+    image: tutum/influxdb:0.8.8
+    environment:
+        PRE_CREATE_DB: test
+    ports:
+        - 8083:8083
+        - 8086:8086
+
+grafana:
+    image: grafana/grafana:2.0.2
+    links:
+        - influx
+    ports:
+        - 3000:3000

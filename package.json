@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "debug": "2.2.0",
+    "dockerode": "2.1.5",
+    "influx-collector": "0.3.1",
+    "lodash.difference": "3.2.1"
+  }
+}
