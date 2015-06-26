@@ -143,9 +143,26 @@ Monitor.prototype._stats = function(cb) {
 Monitor.prototype._collect = function(stat) {
     var self = this;
 
+    var cpu_percent = undefined;
+    var prev = self._prev;
+
+    //https://github.com/docker/docker/blob/master/api/client/stats.go#L185
+    if (prev) {
+        var prev_cpu = prev.cpu_stats.cpu_usage.total_usage;
+        var curr_cpu = stat.cpu_stats.cpu_usage.total_usage;
+        var cpu_delta = curr_cpu - prev_cpu;
+        var sys_delta = stat.cpu_stats.system_cpu_usage - prev.cpu_stats.system_cpu_usage;
+
+        if (sys_delta > 0 && cpu_delta >= 0) {
+            cpu_percent = (cpu_delta / sys_delta) * stat.cpu_stats.cpu_usage.percpu_usage.length * 100;
+        }
+    }
+
     var network = stat.network;
     var cpu = stat.cpu_stats;
     var memory = stat.memory_stats;
+
+    self._prev = stat;
 
     stats.collect(SERIES_NAME, {
         name: self._name,
@@ -162,14 +179,12 @@ Monitor.prototype._collect = function(stat) {
         'network.tx_dropped': network.tx_dropped,
 
         // cpu
-        'cpu.usage.total': cpu.cpu_usage.total_usage,
-        'cpu.usage.kernel': cpu.cpu_usage.usage_in_kernelmode,
-        'cpu.usage.user': cpu.cpu_usage.usage_in_usermode,
-        'cpu.system': cpu.system_cpu_usage,
+        'cpu.usage': cpu_percent,
 
         // memory
         'memory.usage': memory.usage,
-        'memory.max': memory.max_usage,
+        'memory.max_usage': memory.max_usage,
         'memory.limit': memory.limit,
+        'memory.failcnt': memory.failcnt,
     });
 };
