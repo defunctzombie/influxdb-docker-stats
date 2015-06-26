@@ -1,4 +1,6 @@
 {
+  "name": "influxdb-docker-stats",
+  "version": "0.0.0",
   "dependencies": {
     "debug": "2.2.0",
     "dockerode": "2.1.5",
